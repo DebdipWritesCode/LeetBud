@@ -1,5 +1,7 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { FaWandMagicSparkles } from "react-icons/fa6";
+import { FaTrashAlt } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Testcase {
@@ -38,6 +40,12 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
   const handleExpectedChange = (testcaseIndex: number, newValue: string) => {
     const updated = [...testcases];
     updated[testcaseIndex].expected = newValue;
+    setTestcases(updated);
+  };
+
+  const handleNameChange = (testcaseIndex: number, newName: string) => {
+    const updated = [...testcases];
+    updated[testcaseIndex].name = newName;
     setTestcases(updated);
   };
 
@@ -125,18 +133,29 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
     setTestcases([...testcases, newTestcase]);
   };
 
+  const handleGenerate = () => {
+    // Logic to generate test cases based on the code and language
+    // This is a placeholder for the actual implementation
+    toast.success("Test cases generated successfully!");
+  };
+
   return (
-    <div className="space-y-6 p-4 w-full">
+    <div className="space-y-6 p-2 w-full flex flex-col items-center font-body">
       {testcases.map((testcase, idx) => (
         <div
           key={testcase.id}
-          className="border rounded-lg p-4 shadow-sm bg-white relative">
-          <h3 className="text-lg font-semibold mb-4">{testcase.name}</h3>
+          className="border rounded-lg px-4 py-2 shadow-sm bg-white relative w-9/10">
+          <input
+            type="text"
+            value={testcase.name}
+            onChange={(e) => handleNameChange(idx, e.target.value)}
+            className="text-lg font-semibold mb-4 focus:outline-none focus:border-orange-500 bg-transparent"
+          />
 
           <button
             onClick={() => handleDelete(testcase.id)}
-            className="absolute top-2 right-2 text-sm text-red-500 hover:text-red-700 transition">
-            Delete
+            className="absolute top-2 right-2 text-sm text-white bg-red-600 hover:bg-red-800 transition w-8 h-8 rounded-full flex items-center justify-center shadow-md cursor-pointer">
+            <FaTrashAlt />
           </button>
 
           <div className="space-y-3">
@@ -173,11 +192,21 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
         </div>
       ))}
 
-      <button
-        onClick={handleAdd}
-        className="ml-8 px-4 py-2 bg-orange-500 text-white font-medium rounded-md shadow hover:bg-orange-600 transition">
-        Add Test Case
-      </button>
+      <div className="flex justify-between items-center w-full mt-4">
+        <button
+          onClick={handleAdd}
+          className="ml-8 px-4 py-2 bg-orange-500 text-white font-medium rounded-md shadow hover:bg-orange-600 transition cursor-pointer">
+          Add Test Case
+        </button>
+        <button
+          onClick={handleGenerate}
+          className=" mr-10 px-4 py-2 bg-purple-500 text-white font-medium rounded-md shadow hover:bg-purple-600 transition cursor-pointer">
+          <div className="flex items-center gap-2">
+            <p>Generate</p>
+            <FaWandMagicSparkles />
+          </div>
+        </button>
+      </div>
     </div>
   );
 };
