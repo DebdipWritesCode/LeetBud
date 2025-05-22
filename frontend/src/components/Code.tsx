@@ -1,14 +1,13 @@
-import { useState } from "react";
 import CodeBlock from "./CodeBlock";
 
 interface CodeProps {
   code: string;
   setCode: (code: string) => void;
+  language: "cpp" | "python";
+  setLanguage: (language: "cpp" | "python") => void;
 }
 
-const Code: React.FC<CodeProps> = ({ code, setCode }) => {
-  const [language, setLanguage] = useState<"cpp" | "python">("python");
-
+const Code: React.FC<CodeProps> = ({ code, setCode, language, setLanguage }) => {
   return (
     <div className="w-full max-w-4xl mx-auto mt-2 p-4">
       <div className="flex justify-center mb-6">

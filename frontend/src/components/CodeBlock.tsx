@@ -1,4 +1,4 @@
-import React, {useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
 interface CodeBlockProps {
@@ -17,7 +17,6 @@ const pythonInitialCode = `class Solution:
     pass`;
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
-
   const runCode = useCallback(() => {
     console.log("Run Code:\n", code);
     // Connect this to your online compiler logic
@@ -50,6 +49,22 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
         id="codearea"
         value={code}
         onChange={(e) => setCode(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            const textarea = e.currentTarget;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+
+            const newCode =
+              code.substring(0, start) + "    " + code.substring(end);
+            setCode(newCode);
+
+            setTimeout(() => {
+              textarea.selectionStart = textarea.selectionEnd = start + 4;
+            }, 0);
+          }
+        }}
         className="w-full h-[20rem] bg-[#1e1e1e] text-green-300 font-mono text-sm p-4 pr-14 rounded-lg border border-gray-700 resize-none outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-300 scrollbar-thin scrollbar-thumb-orange-400 scrollbar-track-gray-800"
         spellCheck={false}
         placeholder={`Write your ${
@@ -62,16 +77,14 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
           <Tooltip.Trigger asChild>
             <button
               className="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition duration-300 cursor-pointer"
-              onClick={runCode}
-            >
+              onClick={runCode}>
               Run
             </button>
           </Tooltip.Trigger>
           <Tooltip.Content
             side="top"
             align="end"
-            className="bg-gray-800 text-white text-sm rounded px-2 py-1 shadow-md"
-          >
+            className="bg-gray-800 text-white text-sm rounded px-2 py-1 shadow-md">
             Ctrl + '
             <Tooltip.Arrow className="fill-gray-800" />
           </Tooltip.Content>
