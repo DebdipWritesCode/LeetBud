@@ -23,6 +23,16 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
   }, [code]);
 
   useEffect(() => {
+    const looksLikeCpp = /\bclass\s+\w+\s*\{[\s\S]*\};/.test(code);
+    const looksLikePython = /\bclass\s+\w+:\s*\n\s*/.test(code);
+
+    const shouldReplace =
+      (language === "cpp" && looksLikePython) ||
+      (language === "python" && looksLikeCpp) ||
+      code.trim() === "";
+
+    if (!shouldReplace) return;
+
     if (language === "cpp") {
       setCode(cppInitialCode);
     } else if (language === "python") {
