@@ -40,8 +40,24 @@ function parseCPP(code: string, testcases: Testcase[]): string {
 }
 
 function parsePython(code: string, testcases: Testcase[]): string {
-  // to be implemented later
-  return code;
+  const functionName: string = extractLastFunctionNameFromCode(code, "python");
+  if (!functionName) return code;
+
+  let testRunner = `\nif __name__ == "__main__":\n`;
+  testRunner += `    sol = Solution()\n`;
+
+  testcases.forEach((testcase, index) => {
+    const args = testcase.input.map((i) => i.value).join(", ");
+
+    testRunner += `    print("=" * 30)\n`;
+    testRunner += `    print("Running: ${testcase.name}")\n`;
+    testRunner += `    print("Expected:", ${testcase.expected})\n`;
+    testRunner += `    result${index} = sol.${functionName}(${args})\n`;
+    testRunner += `    print("Received:", result${index})\n\n`;
+  });
+
+  const finalCode = `${code.trim()}\n${testRunner}`;
+  return finalCode;
 }
 
 export function checkLanguageAndParse(
