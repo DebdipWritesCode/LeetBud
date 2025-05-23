@@ -1,5 +1,15 @@
 import CodeBlock from "./CodeBlock";
 
+interface Testcase {
+  id: number;
+  name: string;
+  input: {
+    name: string;
+    value: string;
+  }[];
+  expected: string;
+}
+
 interface CodeProps {
   code: string;
   setCode: (code: string) => void;
@@ -9,6 +19,7 @@ interface CodeProps {
   setCurrentBlock: (block: "code" | "output") => void;
   setLoading: (loading: boolean) => void;
   loading: boolean;
+  testcases: Testcase[];
 }
 
 const Code: React.FC<CodeProps> = ({
@@ -20,6 +31,7 @@ const Code: React.FC<CodeProps> = ({
   setCurrentBlock,
   setLoading,
   loading,
+  testcases,
 }) => {
   return (
     <div className="w-full max-w-4xl mx-auto mt-2 p-4">
@@ -52,6 +64,7 @@ const Code: React.FC<CodeProps> = ({
         setCurrentBlock={setCurrentBlock}
         setLoading={setLoading}
         loading={loading}
+        testcases={testcases}
       />
     </div>
   );

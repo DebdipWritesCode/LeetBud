@@ -32,8 +32,10 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
     inputIndex: number,
     newValue: string
   ) => {
+    console.log("Testcases: ", testcases);
     const updated = [...testcases];
     updated[testcaseIndex].input[inputIndex].value = newValue;
+
     setTestcases(updated);
   };
 

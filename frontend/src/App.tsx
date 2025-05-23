@@ -61,6 +61,7 @@ const App = () => {
               setCurrentBlock={setCurrentBlock}
               setLoading={setLoading}
               loading={loading}
+              testcases={testcases}
             />
           ) : (
             <Output output={output} setOutput={setOutput} />

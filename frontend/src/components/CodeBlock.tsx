@@ -1,8 +1,19 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import axios from "axios";
 import { getBackendUrl } from "../utils/envGetter";
 import { toast } from "react-toastify";
+import { checkLanguageAndParse } from "../utils/codeParser"
+
+interface Testcase {
+  id: number;
+  name: string;
+  input: {
+    name: string;
+    value: string;
+  }[];
+  expected: string;
+}
 
 interface CodeBlockProps {
   language: string;
@@ -12,6 +23,7 @@ interface CodeBlockProps {
   setCurrentBlock: (block: "code" | "output") => void;
   setLoading: (loading: boolean) => void;
   loading: boolean;
+  testcases: Testcase[];
 }
 
 const cppInitialCode = `class Solution {
@@ -31,8 +43,9 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   setCurrentBlock,
   setLoading,
   loading,
+  testcases,
 }) => {
-  const runCode = useCallback(async () => {
+  const runCode = async () => {
     setLoading(true);
 
     const backendUrl = getBackendUrl();
@@ -47,8 +60,10 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
       python: "3",
     };
 
+    const codeToRun = checkLanguageAndParse(code, language, testcases);
+
     const requestData = {
-      script: code,
+      script: codeToRun,
       stdin: "",
       language: languageMap[language],
       versionIndex: versionIndexMap[language],
@@ -72,7 +87,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [code, language, setOutput, setCurrentBlock, setLoading]);
+  };
 
   useEffect(() => {
     const looksLikeCpp = /\bclass\s+\w+\s*\{[\s\S]*\};/.test(code);
