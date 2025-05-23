@@ -1,10 +1,17 @@
 import React, { useEffect, useCallback } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import axios from "axios";
+import { getJdoodleClientId, getJdoodleClientSecret } from "../utils/envGetter";
+import { toast } from "react-toastify";
 
 interface CodeBlockProps {
   language: string;
   code: string;
   setCode: (code: string) => void;
+  setOutput: (output: string) => void;
+  setCurrentBlock: (block: "code" | "output") => void;
+  setLoading: (loading: boolean) => void;
+  loading: boolean;
 }
 
 const cppInitialCode = `class Solution {
@@ -16,11 +23,59 @@ const pythonInitialCode = `class Solution:
     # Your code here
     pass`;
 
-const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
-  const runCode = useCallback(() => {
-    console.log("Run Code:\n", code);
-    // Connect this to your online compiler logic
-  }, [code]);
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  language,
+  code,
+  setCode,
+  setOutput,
+  setCurrentBlock,
+  setLoading,
+  loading,
+}) => {
+  const runCode = useCallback(async () => {
+    setLoading(true);
+
+    const jdoodleEndpoint = "https://api.jdoodle.com/v1/execute";
+
+    const languageMap: Record<string, string> = {
+      cpp: "cpp17",
+      python: "python3",
+    };
+
+    const versionIndexMap: Record<string, string> = {
+      cpp: "0",
+      python: "3",
+    };
+
+    const requestData = {
+      clientId: getJdoodleClientId(),
+      clientSecret: getJdoodleClientSecret(),
+      script: code,
+      stdin: "",
+      language: languageMap[language],
+      versionIndex: versionIndexMap[language],
+      compileOnly: false,
+    };
+
+    try {
+      const response = await axios.post(jdoodleEndpoint, requestData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("JDoodle response:", response.data);
+      setOutput(response.data.output);
+      toast.success("Code executed successfully!");
+      setCurrentBlock("output");
+    } catch (error) {
+      console.error("Error executing code:", error);
+      setOutput("Error executing code.");
+      toast.error("Failed to execute code.");
+    } finally {
+      setLoading(false);
+    }
+  }, [code, language, setOutput, setCurrentBlock, setLoading]);
 
   useEffect(() => {
     const looksLikeCpp = /\bclass\s+\w+\s*\{[\s\S]*\};/.test(code);
@@ -57,6 +112,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
       <textarea
         name="codearea"
         id="codearea"
+        disabled={loading}
         value={code}
         onChange={(e) => setCode(e.target.value)}
         onKeyDown={(e) => {
@@ -86,9 +142,14 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code, setCode }) => {
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
-              className="absolute bottom-4 right-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition duration-300 cursor-pointer"
+              disabled={loading}
+              className={`absolute bottom-4 right-4 text-white font-semibold px-4 py-2 rounded-md shadow-md transition duration-300 cursor-pointer ${
+                loading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600"
+              }`}
               onClick={runCode}>
-              Run
+              {loading ? "Running..." : "Run"}
             </button>
           </Tooltip.Trigger>
           <Tooltip.Content

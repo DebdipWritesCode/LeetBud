@@ -22,6 +22,7 @@ const App = () => {
   const [language, setLanguage] = useState<"cpp" | "python">("python");
   const [output, setOutput] = useState<string>("");
   const [currentBlock, setCurrentBlock] = useState<"code" | "output">("code");
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
@@ -33,7 +34,12 @@ const App = () => {
         onClick={() =>
           setCurrentBlock(currentBlock === "code" ? "output" : "code")
         }
-        className="absolute top-5 right-10 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition-all duration-300 z-50 cursor-pointer">
+        disabled={loading}
+        className={`absolute top-5 right-10 text-white px-4 py-2 rounded-md transition-all duration-300 z-50 cursor-pointer ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-purple-500 hover:bg-purple-600"
+        }`}>
         {currentBlock === "code" ? "See Output" : "See Code"}
       </button>
 
@@ -51,6 +57,10 @@ const App = () => {
               setCode={setCode}
               language={language}
               setLanguage={setLanguage}
+              setOutput={setOutput}
+              setCurrentBlock={setCurrentBlock}
+              setLoading={setLoading}
+              loading={loading}
             />
           ) : (
             <Output output={output} setOutput={setOutput} />

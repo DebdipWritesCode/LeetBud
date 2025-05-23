@@ -5,9 +5,22 @@ interface CodeProps {
   setCode: (code: string) => void;
   language: "cpp" | "python";
   setLanguage: (language: "cpp" | "python") => void;
+  setOutput: (output: string) => void;
+  setCurrentBlock: (block: "code" | "output") => void;
+  setLoading: (loading: boolean) => void;
+  loading: boolean;
 }
 
-const Code: React.FC<CodeProps> = ({ code, setCode, language, setLanguage }) => {
+const Code: React.FC<CodeProps> = ({
+  code,
+  setCode,
+  language,
+  setLanguage,
+  setOutput,
+  setCurrentBlock,
+  setLoading,
+  loading,
+}) => {
   return (
     <div className="w-full max-w-4xl mx-auto mt-2 p-4">
       <div className="flex justify-center mb-6">
@@ -17,8 +30,7 @@ const Code: React.FC<CodeProps> = ({ code, setCode, language, setLanguage }) => 
             language === "python"
               ? "bg-orange-400 text-white hover:bg-orange-500 border-orange-400"
               : "text-orange-400 bg-transparent hover:bg-orange-100 border-orange-400"
-          }`}
-        >
+          }`}>
           Python
         </button>
         <button
@@ -27,13 +39,20 @@ const Code: React.FC<CodeProps> = ({ code, setCode, language, setLanguage }) => 
             language === "cpp"
               ? "bg-orange-400 text-white hover:bg-orange-500 border-orange-400"
               : "text-orange-400 bg-transparent hover:bg-orange-100 border-orange-400"
-          }`}
-        >
+          }`}>
           C++
         </button>
       </div>
 
-      <CodeBlock language={language} code={code} setCode={setCode} />
+      <CodeBlock
+        language={language}
+        code={code}
+        setCode={setCode}
+        setOutput={setOutput}
+        setCurrentBlock={setCurrentBlock}
+        setLoading={setLoading}
+        loading={loading}
+      />
     </div>
   );
 };
