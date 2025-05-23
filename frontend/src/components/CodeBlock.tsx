@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import axios from "axios";
-import { getJdoodleClientId, getJdoodleClientSecret } from "../utils/envGetter";
+import { getBackendUrl } from "../utils/envGetter";
 import { toast } from "react-toastify";
 
 interface CodeBlockProps {
@@ -35,7 +35,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const runCode = useCallback(async () => {
     setLoading(true);
 
-    const jdoodleEndpoint = "https://api.jdoodle.com/v1/execute";
+    const backendUrl = getBackendUrl();
 
     const languageMap: Record<string, string> = {
       cpp: "cpp17",
@@ -48,23 +48,20 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
     };
 
     const requestData = {
-      clientId: getJdoodleClientId(),
-      clientSecret: getJdoodleClientSecret(),
       script: code,
       stdin: "",
       language: languageMap[language],
       versionIndex: versionIndexMap[language],
-      compileOnly: false,
     };
 
     try {
-      const response = await axios.post(jdoodleEndpoint, requestData, {
+      const response = await axios.post(`${backendUrl}/run`, requestData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      console.log("JDoodle response:", response.data);
+      console.log("Backend response:", response.data);
       setOutput(response.data.output);
       toast.success("Code executed successfully!");
       setCurrentBlock("output");

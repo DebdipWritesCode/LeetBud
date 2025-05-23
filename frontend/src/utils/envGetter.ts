@@ -6,10 +6,6 @@ function getEnvVar(key: string): string {
   return value;
 }
 
-export function getJdoodleClientId(): string {
-  return getEnvVar('VITE_JDOODLE_CLIENT_ID');
-}
-
-export function getJdoodleClientSecret(): string {
-  return getEnvVar('VITE_JDOODLE_CLIENT_SECRET');
+export function getBackendUrl(): string {
+  return getEnvVar('VITE_BACKEND_URL');
 }
