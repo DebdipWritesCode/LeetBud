@@ -39,18 +39,6 @@
 
 ---
 
-## 🖼️ Screenshots
-
-> *Here’s a quick look at LeetBud in action. .*
-
-| Feature                                | Screenshot                                      |
-| -------------------------------------- | ----------------------------------------------- |
-| Code Input and AI Test Case Generation | ![Editor Screenshot](readme-images/editor.png)  |
-| Generated Test Cases (Groq)            | ![Generated Cases](readme-images/generated.png) |
-| Run Results Panel                      | ![Run Output](readme-images/output.png)         |
-
----
-
 ## ⚒ Tech Stack
 
 * **Frontend:** React + TypeScript
