@@ -71,6 +71,8 @@ const App = () => {
             setTestcases={setTestcases}
             code={code}
             language={language}
+            loading={loading}
+            setLoading={setLoading}
           />
         </div>
       </div>

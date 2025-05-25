@@ -3,6 +3,9 @@ import { toast } from "react-toastify";
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { FaTrashAlt } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
+import { getBackendUrl } from "../utils/envGetter";
+import { checkLanguageAndParse } from "../utils/codeParser";
+import axios from "axios";
 
 interface Testcase {
   id: number;
@@ -19,6 +22,8 @@ interface TestcaseBlockProps {
   setTestcases: (testcases: Testcase[]) => void;
   code: string;
   language: "cpp" | "python";
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
@@ -26,6 +31,8 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
   setTestcases,
   code,
   language,
+  loading,
+  setLoading,
 }) => {
   const handleInputChange = (
     testcaseIndex: number,
@@ -135,10 +142,63 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
     setTestcases([...testcases, newTestcase]);
   };
 
-  const handleGenerate = () => {
-    // Logic to generate test cases based on the code and language
-    // This is a placeholder for the actual implementation
-    toast.success("Test cases generated successfully!");
+  const handleGenerate = async () => {
+    const backendUrl = getBackendUrl();
+
+    const codeToRun = checkLanguageAndParse(code, language, testcases);
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${backendUrl}/generate`, {
+        script: codeToRun,
+        language,
+      });
+
+      const responseText = response.data.testcases;
+
+      if (!responseText) {
+        throw new Error("No test cases received from the server.");
+      }
+
+      const jsonMatch = responseText.match(/```json\s*([\s\S]*?)```/);
+
+      if (!jsonMatch || jsonMatch.length < 2) {
+        throw new Error("Failed to extract JSON from response.");
+      }
+
+      const jsonString = jsonMatch[1];
+
+      let generatedTestcases: any[] = [];
+
+      try {
+        generatedTestcases = JSON.parse(jsonString);
+      } catch (err) {
+        console.error("Failed to parse testcases JSON:", err);
+        toast.error("Failed to parse test cases. Please try again.");
+        return;
+      }
+
+      const startingId =
+        testcases.length > 0 ? testcases[testcases.length - 1].id + 1 : 1;
+
+      const formattedTestcases: Testcase[] = generatedTestcases.map(
+        (tc, index) => ({
+          id: startingId + index,
+          name: tc.name,
+          input: tc.input,
+          expected: tc.expected,
+        })
+      );
+
+      setTestcases([...testcases, ...formattedTestcases]);
+      toast.success("Test cases generated successfully!");
+    } catch (error) {
+      console.error("Error generating test cases:", error);
+      toast.error("Failed to generate test cases.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -151,7 +211,7 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
             type="text"
             value={testcase.name}
             onChange={(e) => handleNameChange(idx, e.target.value)}
-            className="text-lg font-semibold mb-4 focus:outline-none focus:border-orange-500 bg-transparent"
+            className="text-lg font-semibold mb-4 focus:outline-none focus:border-orange-500 bg-transparent w-full"
           />
 
           <button
@@ -197,12 +257,23 @@ const TestcaseBlock: React.FC<TestcaseBlockProps> = ({
       <div className="flex justify-between items-center w-full mt-4">
         <button
           onClick={handleAdd}
-          className="ml-8 px-4 py-2 bg-orange-500 text-white font-medium rounded-md shadow hover:bg-orange-600 transition cursor-pointer">
+          disabled={loading}
+          className={`ml-8 px-4 py-2 text-white font-medium rounded-md shadow transition cursor-pointer ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
+          }`}>
           Add Test Case
         </button>
+
         <button
           onClick={handleGenerate}
-          className=" mr-10 px-4 py-2 bg-purple-500 text-white font-medium rounded-md shadow hover:bg-purple-600 transition cursor-pointer">
+          disabled={loading}
+          className={`mr-10 px-4 py-2 text-white font-medium rounded-md shadow transition cursor-pointer ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-purple-500 hover:bg-purple-600"
+          }`}>
           <div className="flex items-center gap-2">
             <p>Generate</p>
             <FaWandMagicSparkles />
