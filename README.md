@@ -2,6 +2,8 @@
 
 **An AI-Powered LeetCode Buddy for Smart Code Testing**
 
+![LeetBud Cover](./frontend/public/readme-cover.png)
+
 **LeetBud** is your intelligent assistant for LeetCode-style coding. It’s an AI-driven single-page application (SPA) that helps you **parse, test, and auto-generate test cases** for your solutions in Python and C++. Built with **React (TypeScript)**, **FastAPI**, and powered by **Groq's Generative AI**, LeetBud takes the manual work out of debugging and testing your code.
 
 ---
